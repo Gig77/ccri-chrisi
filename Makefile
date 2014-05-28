@@ -35,7 +35,7 @@ SAMPLES=18376_ACATTA_C4993ACXX_5_20140509B_20140509 \
 		18381_CGCAAC_C4993ACXX_5_20140509B_20140509 \
 		test
 
-all: $(foreach S, $(SAMPLES), htseq/$S.count)
+all: $(foreach S, $(SAMPLES), htseq/$S.count flagstat/$S.samtools.flagstat)
 
 #----------------------------------------------
 # BAM to FASTQ, align with GSNAP, sort & index
@@ -63,7 +63,11 @@ gsnap/%.gsnap.bam: ~/chrisi/data/bam/%.bam
 	~/tools/samtools-0.1.19/samtools reheader header.sam $@ > $@.reheader
 	mv $@.reheader $@
 	~/tools/samtools-0.1.19/samtools index $@
-	
+
+flagstat/%.samtools.flagstat: gsnap/%.gsnap.bam
+	samtools flagstat $< > $@.part
+	mv $@.part $@
+
 htseq/%.count: gsnap/%.gsnap.bam 
 	~/tools/HTSeq-0.6.1/scripts/htseq-count -f bam -t exon -s no $< ~/generic/data/ensembl/Homo_sapiens.GRCh37.75.gtf.gz > $@.part
 	mv $@.part $@
