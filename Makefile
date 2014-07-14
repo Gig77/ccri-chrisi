@@ -10,7 +10,13 @@ LOG = perl -ne 'use POSIX qw(strftime); $$|=1; print strftime("%F %02H:%02M:%S "
 # wget -c --quiet --no-check-certificate --auth-no-challenge --user 'Christine.Portsmouth' --password 'RS5YC4LE8E' http://ngs.csf.ac.at/data/18379_AAGACA_C4993ACXX_5_20140509B_20140509.bam &
 # wget -c --quiet --no-check-certificate --auth-no-challenge --user 'Christine.Portsmouth' --password 'RS5YC4LE8E' http://ngs.csf.ac.at/data/18380_TAATCG_C4993ACXX_5_20140509B_20140509.bam &
 # wget -c --quiet --no-check-certificate --auth-no-challenge --user 'Christine.Portsmouth' --password 'RS5YC4LE8E' http://ngs.csf.ac.at/data/18381_CGCAAC_C4993ACXX_5_20140509B_20140509.bam &
-# wget -c --quiet --no-check-certificate --auth-no-challenge --user 'Christine.Portsmouth' --password 'RS5YC4LE8E' http://ngs.csf.ac.at/data/C4993ACXX_5_20140509B_20140512.bam &
+
+# wget -c --quiet --no-check-certificate --auth-no-challenge --user 'Christine.Portsmouth' --password 'RS5YC4LE8E' http://ngs.csf.ac.at/data/18370_AATAGC_C4E7NACXX_8_20140603B_20140603.bam &
+# wget -c --quiet --no-check-certificate --auth-no-challenge --user 'Christine.Portsmouth' --password 'RS5YC4LE8E' http://ngs.csf.ac.at/data/18371_TTAACT_C4E7NACXX_8_20140603B_20140603.bam &
+# wget -c --quiet --no-check-certificate --auth-no-challenge --user 'Christine.Portsmouth' --password 'RS5YC4LE8E' http://ngs.csf.ac.at/data/18372_AATGAA_C4E7NACXX_8_20140603B_20140603.bam &
+# wget -c --quiet --no-check-certificate --auth-no-challenge --user 'Christine.Portsmouth' --password 'RS5YC4LE8E' http://ngs.csf.ac.at/data/18373_GATTGT_C4E7NACXX_8_20140603B_20140603.bam &
+# wget -c --quiet --no-check-certificate --auth-no-challenge --user 'Christine.Portsmouth' --password 'RS5YC4LE8E' http://ngs.csf.ac.at/data/18374_ATAAGA_C4E7NACXX_8_20140603B_20140603.bam &
+# wget -c --quiet --no-check-certificate --auth-no-challenge --user 'Christine.Portsmouth' --password 'RS5YC4LE8E' http://ngs.csf.ac.at/data/18375_GCCACA_C4E7NACXX_8_20140603B_20140603.bam &
 
 # PRADA web site: http://bioinformatics.mdanderson.org/main/PRADA:Overview
 
@@ -18,6 +24,9 @@ LOG = perl -ne 'use POSIX qw(strftime); $$|=1; print strftime("%F %02H:%02M:%S "
 #~/chrisi/data/prada/PRADA-reference.hg19.20130828.tar.gz: 
 #	curl bioinformatics.mdanderson.org/Software/PRADA/PRADA-reference.hg19.20130828.tar.gz -o $@.part
 #	mv $@.part $@
+
+# FASTA reference genome
+# ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/phase2_reference_assembly_sequence/hs37d5.fa.gz
 	
 # build GMAP database
 # cd ~/chrisi/data/gsnap
@@ -37,8 +46,6 @@ LOG = perl -ne 'use POSIX qw(strftime); $$|=1; print strftime("%F %02H:%02M:%S "
 # cat g1k_v37.splicesites | ~/tools/gmap-2014-05-15/bin/iit_store -o g1k_v37_etv6runx1.maps/g1k_v37.splicesites
 
 
-
-
 #%.fastq: %.bam
 #	java -jar ~/tools/picard-tools-1.114/SamToFastq.jar INPUT=$< FASTQ=$@.part
 #	mv $@.part $@
@@ -49,6 +56,12 @@ SAMPLES=18376_ACATTA_C4993ACXX_5_20140509B_20140509 \
 		18377_GGTGAG_C4993ACXX_5_20140509B_20140509 \
 		18379_AAGACA_C4993ACXX_5_20140509B_20140509 \
 		18381_CGCAAC_C4993ACXX_5_20140509B_20140509 \
+		18370_AATAGC_C4E7NACXX_8_20140603B_20140603 \
+		18371_TTAACT_C4E7NACXX_8_20140603B_20140603 \
+		18372_AATGAA_C4E7NACXX_8_20140603B_20140603 \
+		18373_GATTGT_C4E7NACXX_8_20140603B_20140603 \
+		18374_ATAAGA_C4E7NACXX_8_20140603B_20140603 \
+		18375_GCCACA_C4E7NACXX_8_20140603B_20140603 \
 		test
 
 all: $(foreach S, $(SAMPLES), htseq/$S.count flagstat/$S.samtools.flagstat)
@@ -91,4 +104,52 @@ htseq/combined.count: $(foreach S, $(SAMPLES), htseq/$S.count) ~/chrisi/scripts/
 	Rscript ~/chrisi/scripts/combine-counts.R $(foreach S, $(SAMPLES), htseq/$S.count) 2>&1 1>$@.part | $(LOG)
 	mv $@.part $@
 	
-	
+#----
+# RSeQC
+#----
+
+quality: rseqc/allpatients.rRNA.count rseqc/allpatients.read-distribution.txt rseqc/allpatients.splice_junction.pdf rseqc/allpatients.splicing_events.pdf rseqc/allpatients.geneBodyCoverage.pdf rseqc/allpatients.DupRate_plot.pdf
+
+rseqc/allpatients.geneBodyCoverage.pdf: $(foreach S, $(SAMPLES), rseqc/$S.rseqc.geneBodyCoverage.pdf)
+	gs -dBATCH -dNOPAUSE -q -dAutoRotatePages=/None -sDEVICE=pdfwrite -sOutputFile=$@.part $^
+	mv $@.part $@
+
+rseqc/%.rseqc.geneBodyCoverage.pdf: gsnap/%.gsnap.bam ~/generic/data/rseqc/hg19_Ensembl.bed
+	~/tools/RSeQC-2.3.9/bin/geneBody_coverage.py -i $< -r ~/generic/data/rseqc/hg19_Ensembl.bed -o rseqc/$*.rseqc
+
+rseqc/allpatients.DupRate_plot.pdf: $(foreach S, $(SAMPLES), rseqc/$S.rseqc.DupRate_plot.pdf)
+	gs -dBATCH -dNOPAUSE -q -dAutoRotatePages=/None -sDEVICE=pdfwrite -sOutputFile=$@.part $^
+	mv $@.part $@
+
+rseqc/%.rseqc.DupRate_plot.pdf: gsnap/%.gsnap.bam
+	~/tools/RSeQC-2.3.9/bin/read_duplication.py -i $< -o rseqc/$*.rseqc
+
+rseqc/allpatients.read-distribution.txt: $(foreach S, $(SAMPLES), rseqc/$S.rseqc.read-distribution.txt)
+	rm -f $@.part
+	for S in $^ ; do echo $$S >> $@.part; cat $$S >> $@.part ; done
+	mv $@.part $@
+
+rseqc/%.rseqc.read-distribution.txt: gsnap/%.gsnap.bam ~/generic/data/rseqc/hg19_Ensembl.bed
+	~/tools/RSeQC-2.3.9/bin/read_distribution.py -i $< -r ~/generic/data/rseqc/hg19_Ensembl.bed > $@.part
+	mv $@.part $@
+
+rseqc/allpatients.splice_junction.pdf: $(foreach S, $(SAMPLES), rseqc/$S.rseqc.splice_junction.pdf)
+	gs -dBATCH -dNOPAUSE -q -dAutoRotatePages=/None -sDEVICE=pdfwrite -sOutputFile=$@.part $^
+	mv $@.part $@
+
+rseqc/allpatients.splicing_events.pdf: $(foreach S, $(SAMPLES), rseqc/$S.rseqc.splice_events.pdf)
+	gs -dBATCH -dNOPAUSE -q -dAutoRotatePages=/None -sDEVICE=pdfwrite -sOutputFile=$@.part $^
+	mv $@.part $@
+
+rseqc/%.rseqc.splice_events.pdf rseqc/%.rseqc.splice_junction.pdf: gsnap/%.gsnap.bam ~/generic/data/rseqc/hg19_Ensembl.bed
+	~/tools/RSeQC-2.3.9/bin/junction_annotation.py -i $< -r ~/generic/data/rseqc/hg19_Ensembl.bed -o rseqc/$*.rseqc
+
+rseqc/allpatients.rRNA.count: $(foreach S, $(SAMPLES), rseqc/$S.rRNA.count)
+	rm -f $@.part
+	for S in $^ ; do echo $$S >> $@.part; cat $$S >> $@.part ; done
+	mv $@.part $@
+
+rseqc/%.rRNA.count: gsnap/%.gsnap.bam flagstat/%.samtools.flagstat
+	echo "Total number of reads:" `head -1 flagstat/$*.samtools.flagstat | cut -f 1 -d ' '` > $@.part
+	echo "Number of reads mapping to rRNA genes: " `samtools view $< -L ~/generic/data/ensembl/rRNA.ensembl.biomart.GRCh37.p13.bed | wc -l` >> $@.part
+	mv $@.part $@

@@ -81,17 +81,38 @@ colnames(ni1Line) <- c("mausSym", "Niedist","menschSym")
 #############################################################
 
 
+wihumOrt.dedup <- wihumOrt[,c(2,2)]
+wihumOrt.dedup <- wihumOrt.dedup[!duplicated(wihumOrt.dedup),]
 
-## ChIpseq an matAnn dranh�ngen #############################
+## ChIpseq an matAnn dranhaengen - strobl ####################
 chrisi <- read.delim(file="~/chrisi/results/strobl-dox-empty-vs-etv6.deseq2.tsv", na.strings=c("NA", ""))
 chrisi$hgnc_symbol[chrisi$hgnc_symbol==""] <- NA
 merged <- merge(chrisi, ni1Line, by.x="hgnc_symbol", by.y="menschSym", all.x=T, all.y=F); head(merged); dim(merged)
 merged <- merge(merged, tj[,c(3,3)], by.x="hgnc_symbol", by.y="Tijssen_Runx1_alone", all.x=T, all.y=F); head(merged); dim(merged)
-wihumOrt.dedup <- wihumOrt[,c(2,2)]
-wihumOrt.dedup <- wihumOrt.dedup[!duplicated(wihumOrt.dedup),]
 merged <- merge(merged, wihumOrt.dedup, by.x="hgnc_symbol", by.y="Wi_hgnc", all.x=T, all.y=F); head(merged); dim(merged)
 
 merged <- merged[order(merged$padj), ]
 write.table(merged, file="~/chrisi/results/strobl-dox-empty-vs-etv6.deseq2.chipseq-annotated.tsv", col.names=T, row.names=F, sep="\t", quote=F)
 #############################################################
 
+## ChIpseq an matAnn dranhaengen - zuber ####################
+chrisi <- read.delim(file="~/chrisi/results/zuber-etv6-dox-vs-nodox.deseq2.tsv", na.strings=c("NA", ""))
+chrisi$hgnc_symbol[chrisi$hgnc_symbol==""] <- NA
+merged <- merge(chrisi, ni1Line, by.x="hgnc_symbol", by.y="menschSym", all.x=T, all.y=F); head(merged); dim(merged)
+merged <- merge(merged, tj[,c(3,3)], by.x="hgnc_symbol", by.y="Tijssen_Runx1_alone", all.x=T, all.y=F); head(merged); dim(merged)
+merged <- merge(merged, wihumOrt.dedup, by.x="hgnc_symbol", by.y="Wi_hgnc", all.x=T, all.y=F); head(merged); dim(merged)
+
+merged <- merged[order(merged$padj), ]
+write.table(merged, file="~/chrisi/results/zuber-etv6-dox-vs-nodox.deseq2.chipseq-annotated.tsv", col.names=T, row.names=F, sep="\t", quote=F)
+#############################################################
+
+## ChIpseq an matAnn dranhaengen - zuber ####################
+chrisi <- read.delim(file="~/chrisi/results/zuber-dox-empty-vs-etv6.deseq2.tsv", na.strings=c("NA", ""))
+chrisi$hgnc_symbol[chrisi$hgnc_symbol==""] <- NA
+merged <- merge(chrisi, ni1Line, by.x="hgnc_symbol", by.y="menschSym", all.x=T, all.y=F); head(merged); dim(merged)
+merged <- merge(merged, tj[,c(3,3)], by.x="hgnc_symbol", by.y="Tijssen_Runx1_alone", all.x=T, all.y=F); head(merged); dim(merged)
+merged <- merge(merged, wihumOrt.dedup, by.x="hgnc_symbol", by.y="Wi_hgnc", all.x=T, all.y=F); head(merged); dim(merged)
+
+merged <- merged[order(merged$padj), ]
+write.table(merged, file="~/chrisi/results/zuber-dox-empty-vs-etv6.deseq2.chipseq-annotated.tsv", col.names=T, row.names=F, sep="\t", quote=F)
+#############################################################

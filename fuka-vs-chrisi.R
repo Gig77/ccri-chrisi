@@ -1,9 +1,9 @@
 
-#fuka <- read.delim("~/chrisi/results/fuka/matAnn.telamlKD.REHandAT2.esetnsF.REH.AT2.balanced.annot.tsv")
-#chrisi <- read.delim(file="~/chrisi/results/strobl-dox-empty-vs-etv6.deseq2.chipseq-annotated.tsv")
+fuka <- read.delim("~/chrisi/results/fuka/matAnn.telamlKD.REHandAT2.esetnsF.REH.AT2.balanced.annot.tsv")
+chrisi.strobl.empty_vs_etv6 <- read.delim(file="~/chrisi/results/strobl-dox-empty-vs-etv6.deseq2.chipseq-annotated.tsv")
 
-#m <- merge(chrisi, fuka, by.x="hgnc_symbol", by.y="syms", all.x=T, all.y=T)
-#write.table(m, file="strobl-dox-empty-vs-etv6.deseq2.fuka.tsv", col.names=T, row.names=F, sep="\t", quote=F)
+m.strobl.empty_vs_etv6 <- merge(chrisi.strobl.empty_vs_etv6, fuka, by.x="hgnc_symbol", by.y="syms", all.x=T, all.y=T)
+write.table(m.strobl.empty_vs_etv6, file="strobl-dox-empty-vs-etv6.deseq2.fuka.tsv", col.names=T, row.names=F, sep="\t", quote=F)
 
 do_plot <- function(title) {
 	fit <- lm(log2FoldChange~logFC, data=m.sig)
@@ -19,14 +19,14 @@ do_plot <- function(title) {
 
 pdf("~/chrisi/results/fuka-chrisi-scatter.significant-both.pdf")
 for (cutoff in c(0.05, 0.01, 0.001, 0.0001)) {
-	m.sig <- m[!is.na(m$Pval) & !is.na(m$pval) & m$Pval<=cutoff & m$pval<=cutoff,]
+	m.sig <- m.strobl.empty_vs_etv6[!is.na(m.strobl.empty_vs_etv6$Pval) & !is.na(m.strobl.empty_vs_etv6$pval) & m.strobl.empty_vs_etv6$Pval<=cutoff & m.strobl.empty_vs_etv6$pval<=cutoff,]
 	do_plot("Both datasets p-value <=")
 }
 dev.off()
 
 pdf("~/chrisi/results/fuka-chrisi-scatter.significant-chrisi.pdf")
 for (cutoff in c(0.05, 0.01, 0.001, 0.0001, 0.00001, 1e-6, 1e-10)) {
-	m.sig <- m[!is.na(m$pvalue) & !is.na(m$pval) & m$pvalue<=cutoff,]
+	m.sig <- m.strobl.empty_vs_etv6[!is.na(m.strobl.empty_vs_etv6$pvalue) & !is.na(m.strobl.empty_vs_etv6$pval) & m.strobl.empty_vs_etv6$pvalue<=cutoff,]
 	do_plot("Chrisi dataset p-value <=")
 }
 dev.off()
