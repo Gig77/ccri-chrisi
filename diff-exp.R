@@ -76,7 +76,7 @@ res.annotated <- merge(res.df, genes[,1:3], by.x="id", by.y="ensembl_gene_id", a
 write.table(res.annotated, file="~/chrisi/results/zuber-dox-empty-vs-etv6.deseq2.tsv", col.names=T, row.names=F, sep="\t", quote=F)
 
 #--------
-# DESeq
+# DESeq --- OBSOLETE
 #--------
 library("DESeq")
 
