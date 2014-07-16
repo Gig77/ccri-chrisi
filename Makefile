@@ -74,13 +74,12 @@ gsnap/%.gsnap.bam: ~/chrisi/data/bam/%.bam
 			--db=g1k_v37_etv6runx1 \
 			--dir=/data/christian/chrisi/data/current/gsnap/g1k_v37_etv6runx1 \
 			--format=sam \
-			--npaths=1 \
+			--npaths=1000 \
 			--quiet-if-excessive \
-			--nofails \
 			--batch=4  \
 			--quality-protocol=sanger \
 			--print-snps \
-			--nthreads=24 \
+			--nthreads=20 \
 			--input-buffer-size=5000 \
 			--use-splicing=g1k_v37.splicesites \
 			--use-snps=g1k_v37.snp138 \
@@ -89,8 +88,22 @@ gsnap/%.gsnap.bam: ~/chrisi/data/bam/%.bam
 		| ~/tools/samtools-0.1.19/samtools view -Shb - \
 		| ~/tools/samtools-0.1.19/samtools sort -m 1000000000 - $@ \
 		2>&1 | $(LOG)
-	mv $@.bam $@
+
+	java -Xmx2g -Djava.io.tmpdir=/data/tmp -jar ~/tools/picard-tools-1.114/MarkDuplicates.jar \
+		INPUT=$@.bam \
+		OUTPUT=$@.part \
+		METRICS_FILE=picard/$*.mark_duplicates_metrics \
+		VALIDATION_STRINGENCY=LENIENT \
+		2>&1 | $(LOG)
+		
+	mv $@.part $@
+	rm $@.bam
 	~/tools/samtools-0.1.19/samtools index $@ 2>&1 | $(LOG)
+
+gsnap/%.gsnap.filtered.bam: gsnap/%.gsnap.bam
+	samtools view -h -F 772 $< | grep -P "(^@|NH:i:1)" | samtools view -Shb - > $@.part # PF, mapped, primary, unique
+	mv $@.part $@
+	~/tools/samtools-0.1.19/samtools index $@
 
 gsnap/%.gsnap.unpaired_uniq.bam: ~/chrisi/data/bam/%.bam
 	java -jar ~/tools/picard-tools-1.114/SamToFastq.jar INPUT=$< FASTQ=/dev/stdout \
@@ -125,7 +138,7 @@ flagstat/%.samtools.flagstat: gsnap/%.gsnap.bam
 	samtools flagstat $< 2>&1 1>$@.part | $(LOG)
 	mv $@.part $@
 
-htseq/%.count: gsnap/%.gsnap.bam ~/chrisi/data/ensembl/Homo_sapiens.GRCh37.75.etv6runx1.no-rRNA.gtf.gz
+htseq/%.count: gsnap/%.gsnap.filtered.bam ~/chrisi/data/ensembl/Homo_sapiens.GRCh37.75.etv6runx1.no-rRNA.gtf.gz
 	~/tools/HTSeq-0.6.1/scripts/htseq-count -f bam -t exon -s no $< ~/chrisi/data/ensembl/Homo_sapiens.GRCh37.75.etv6runx1.no-rRNA.gtf.gz 2>&1 1>$@.part | $(LOG)
 	mv $@.part $@
 
@@ -146,45 +159,35 @@ htseq/%.count: gsnap/%.gsnap.bam ~/chrisi/data/ensembl/Homo_sapiens.GRCh37.75.et
 
 quality: $(foreach S, $(SAMPLES), rseqc/$S.saturation.pdf) htseq/coverage-saturation-curve.pdf rseqc/allpatients.rRNA.count rseqc/allpatients.read-distribution.txt rseqc/allpatients.splice_junction.pdf rseqc/allpatients.splicing_events.pdf rseqc/allpatients.geneBodyCoverage.pdf rseqc/allpatients.DupRate_plot.pdf rseqc/allpatients.infer_experiment.txt
 
-rseqc/%.stats.txt: gsnap/%.gsnap.unpaired_uniq.bam
-	echo -ne $*"\t" > $@.part 
-	echo -ne `samtools view -c ~/chrisi/data/bam/$*.bam`"\t" >> $@.part 
-	echo -ne `samtools view -c gsnap/$*.gsnap.nomapping.bam`"\t" >> $@.part 
-	echo -ne `samtools view -c gsnap/$*.gsnap.unpaired_mult.bam -L ~/generic/data/ensembl/Homo_sapiens.GRCh37.75.all.exons.bed`"\n"\
-		     `samtools view -c gsnap/$*.gsnap.unpaired_uniq.bam -L ~/generic/data/ensembl/Homo_sapiens.GRCh37.75.all.exons.bed` | perl -ne '$$sum += $$_; END {print "$$sum\t"}' >> $@.part 
-	echo -ne `samtools view -c gsnap/$*.gsnap.unpaired_mult.bam -L ~/generic/data/ensembl/Homo_sapiens.GRCh37.75.rRNA.exons.bed`"\n"\
-		     `samtools view -c gsnap/$*.gsnap.unpaired_uniq.bam -L ~/generic/data/ensembl/Homo_sapiens.GRCh37.75.rRNA.exons.bed` | perl -ne '$$sum += $$_; END {print "$$sum\t"}' >> $@.part 
-	echo -ne `samtools view -c gsnap/$*.gsnap.unpaired_mult.bam -L ~/generic/data/ensembl/Homo_sapiens.GRCh37.75.lincRNA.exons.bed`"\n"\
-		     `samtools view -c gsnap/$*.gsnap.unpaired_uniq.bam -L ~/generic/data/ensembl/Homo_sapiens.GRCh37.75.lincRNA.exons.bed` | perl -ne '$$sum += $$_; END {print "$$sum\t"}' >> $@.part 
-	echo -ne `samtools view -c gsnap/$*.gsnap.unpaired_mult.bam -L ~/generic/data/ensembl/Homo_sapiens.GRCh37.75.miRNA.exons.bed`"\n"\
-		     `samtools view -c gsnap/$*.gsnap.unpaired_uniq.bam -L ~/generic/data/ensembl/Homo_sapiens.GRCh37.75.miRNA.exons.bed` | perl -ne '$$sum += $$_; END {print "$$sum\t"}' >> $@.part 
-	echo -ne `samtools view -c gsnap/$*.gsnap.unpaired_mult.bam -L ~/generic/data/ensembl/Homo_sapiens.GRCh37.75.mtRNA.exons.bed`"\n"\
-		     `samtools view -c gsnap/$*.gsnap.unpaired_uniq.bam -L ~/generic/data/ensembl/Homo_sapiens.GRCh37.75.mtRNA.exons.bed` | perl -ne '$$sum += $$_; END {print "$$sum\t"}' >> $@.part 
-	echo -ne `samtools view -c gsnap/$*.gsnap.unpaired_mult.bam -L ~/generic/data/ensembl/Homo_sapiens.GRCh37.75.miscRNA.exons.bed`"\n"\
-		     `samtools view -c gsnap/$*.gsnap.unpaired_uniq.bam -L ~/generic/data/ensembl/Homo_sapiens.GRCh37.75.miscRNA.exons.bed` | perl -ne '$$sum += $$_; END {print "$$sum\t"}' >> $@.part 
-	echo -ne `samtools view -c gsnap/$*.gsnap.unpaired_mult.bam -L ~/generic/data/ensembl/Homo_sapiens.GRCh37.75.other.exons.bed`"\n"\
-		     `samtools view -c gsnap/$*.gsnap.unpaired_uniq.bam -L ~/generic/data/ensembl/Homo_sapiens.GRCh37.75.other.exons.bed` | perl -ne '$$sum += $$_; END {print "$$sum\t"}' >> $@.part 
-	echo -ne `samtools view -c gsnap/$*.gsnap.unpaired_mult.bam -L ~/generic/data/ensembl/Homo_sapiens.GRCh37.75.protein_coding.exons.bed`"\t" >> $@.part 
-	echo -ne `samtools view -c gsnap/$*.gsnap.unpaired_uniq.bam -L ~/generic/data/ensembl/Homo_sapiens.GRCh37.75.protein_coding.exons.bed`"\n" >> $@.part
+rseqc/allpatients.stats.txt: $(foreach S, $(SAMPLES), rseqc/$S.stats.txt)
+	echo -e "sample\ttotal\tpass QC\tmapped\texonic\tnon-rRNA\tprotein\tprotein unique\tprotein unique de-duplicated\t" > $@.part
+	cat $^ >> $@.part
 	mv $@.part $@ 
 
-rseqc/allpatients.stats.txt: $(foreach S, $(SAMPLES), rseqc/$S.stats.txt)
-	echo -e "sample\ttotal\tunmapped\texonic\trRNA\tlincRNA\tmiRNA\tmtRNA\tmiscRNA\tother, non-protein-coding\tprotein-coding, multi-mapped\tprotein-coding, unique\n" > $@.part
-	cat $^ >> $@.part
+rseqc/%.stats.txt: gsnap/%.gsnap.bam ~/chrisi/data/bam/%.bam
+	echo -ne $*"\t" > $@.part 
+	echo -ne `samtools view -c ~/chrisi/data/bam/$*.bam`"\t" >> $@.part  # total reads
+	echo -ne `samtools view -c -F 512 ~/chrisi/data/bam/$*.bam`"\t" >> $@.part  # pass filter (PF)
+	echo -ne `samtools view -c -F 772 $<`"\t" >> $@.part # PF, mapped, only primary alignments
+	echo -ne `samtools view -c -F 772 $< -L ~/generic/data/ensembl/Homo_sapiens.GRCh37.75.all.exons.bed`"\t" >> $@.part # mapped exonic reads
+	echo -ne `samtools view -c -F 772 $< -L ~/generic/data/ensembl/Homo_sapiens.GRCh37.75.all-minus-rRNA.exons.bed`"\t" >> $@.part # mapped exonic non-rRNA reads
+	echo -ne `samtools view -c -F 772 $< -L ~/generic/data/ensembl/Homo_sapiens.GRCh37.75.protein_coding.exons.bed`"\t" >> $@.part # mapped exonic protein-coding reads
+	echo -ne `samtools view -F 772 $< -L ~/generic/data/ensembl/Homo_sapiens.GRCh37.75.protein_coding.exons.bed | grep "NH:i:1" | wc -l`"\t" >> $@.part # protein-coding, unique mapper
+	echo -ne `samtools view -F 1796 $< -L ~/generic/data/ensembl/Homo_sapiens.GRCh37.75.protein_coding.exons.bed | grep "NH:i:1" | wc -l`"\n" >> $@.part # protein-coding, unique mapper, non-duplicate
 	mv $@.part $@ 
 
 rseqc/allpatients.geneBodyCoverage.pdf: $(foreach S, $(SAMPLES), rseqc/$S.rseqc.geneBodyCoverage.pdf)
 	gs -dBATCH -dNOPAUSE -q -dAutoRotatePages=/None -sDEVICE=pdfwrite -sOutputFile=$@.part $^
 	mv $@.part $@
 
-rseqc/%.rseqc.geneBodyCoverage.pdf: gsnap/%.gsnap.bam ~/generic/data/rseqc/hg19_Ensembl.bed
+rseqc/%.rseqc.geneBodyCoverage.pdf: gsnap/%.gsnap.filtered.bam ~/generic/data/rseqc/hg19_Ensembl.bed
 	~/tools/RSeQC-2.3.9/bin/geneBody_coverage.py -i $< -r ~/generic/data/rseqc/hg19_Ensembl.bed -o rseqc/$*.rseqc
 
 rseqc/allpatients.DupRate_plot.pdf: $(foreach S, $(SAMPLES), rseqc/$S.rseqc.DupRate_plot.pdf)
 	gs -dBATCH -dNOPAUSE -q -dAutoRotatePages=/None -sDEVICE=pdfwrite -sOutputFile=$@.part $^
 	mv $@.part $@
 
-rseqc/%.rseqc.DupRate_plot.pdf: gsnap/%.gsnap.bam
+rseqc/%.rseqc.DupRate_plot.pdf: gsnap/%.gsnap.filtered.bam
 	~/tools/RSeQC-2.3.9/bin/read_duplication.py -i $< -o rseqc/$*.rseqc
 
 rseqc/allpatients.read-distribution.txt: $(foreach S, $(SAMPLES), rseqc/$S.rseqc.read-distribution.txt)
@@ -192,7 +195,7 @@ rseqc/allpatients.read-distribution.txt: $(foreach S, $(SAMPLES), rseqc/$S.rseqc
 	for S in $^ ; do echo $$S >> $@.part; cat $$S >> $@.part ; done
 	mv $@.part $@
 
-rseqc/%.rseqc.read-distribution.txt: gsnap/%.gsnap.bam ~/generic/data/rseqc/hg19_Ensembl.bed
+rseqc/%.rseqc.read-distribution.txt: gsnap/%.gsnap.filtered.bam ~/generic/data/rseqc/hg19_Ensembl.bed
 	~/tools/RSeQC-2.3.9/bin/read_distribution.py -i $< -r ~/generic/data/rseqc/hg19_Ensembl.bed > $@.part
 	mv $@.part $@
 
@@ -204,39 +207,29 @@ rseqc/allpatients.splicing_events.pdf: $(foreach S, $(SAMPLES), rseqc/$S.rseqc.s
 	gs -dBATCH -dNOPAUSE -q -dAutoRotatePages=/None -sDEVICE=pdfwrite -sOutputFile=$@.part $^
 	mv $@.part $@
 
-rseqc/%.rseqc.splice_events.pdf rseqc/%.rseqc.splice_junction.pdf: gsnap/%.gsnap.bam ~/generic/data/rseqc/hg19_Ensembl.bed
+rseqc/%.rseqc.splice_events.pdf rseqc/%.rseqc.splice_junction.pdf: gsnap/%.gsnap.filtered.bam ~/generic/data/rseqc/hg19_Ensembl.bed
 	~/tools/RSeQC-2.3.9/bin/junction_annotation.py -i $< -r ~/generic/data/rseqc/hg19_Ensembl.bed -o rseqc/$*.rseqc
 
-rseqc/allpatients.rRNA.count: $(foreach S, $(SAMPLES), rseqc/$S.rRNA.count)
-	rm -f $@.part
-	for S in $^ ; do echo $$S >> $@.part; cat $$S >> $@.part ; done
-	mv $@.part $@
-
-rseqc/%.rRNA.count: gsnap/%.gsnap.bam flagstat/%.samtools.flagstat
-	echo "Total number of reads:" `head -1 flagstat/$*.samtools.flagstat | cut -f 1 -d ' '` > $@.part
-	echo "Number of reads mapping to rRNA genes: " `samtools view $< -L ~/generic/data/ensembl/rRNA.ensembl.biomart.GRCh37.p13.bed | wc -l` >> $@.part
-	mv $@.part $@
-	
 rseqc/allpatients.infer_experiment.txt: $(foreach S, $(SAMPLES), rseqc/$S.infer_experiment.txt)
 	rm -f $@.part
 	for S in $^ ; do echo $$S >> $@.part; cat $$S >> $@.part ; done
 	mv $@.part $@
 
-rseqc/%.infer_experiment.txt: gsnap/%.gsnap.bam ~/generic/data/rseqc/hg19_Ensembl.bed
+rseqc/%.infer_experiment.txt: gsnap/%.gsnap.filtered.bam ~/generic/data/rseqc/hg19_Ensembl.bed
 	~/tools/RSeQC-2.3.9/bin/infer_experiment.py -i $< -r ~/generic/data/rseqc/hg19_Ensembl.bed > $@.part
 	mv $@.part $@
 	
-rseqc/%.saturation.pdf: gsnap/%.gsnap.bam ~/generic/data/rseqc/hg19_Ensembl.bed
+rseqc/%.saturation.pdf: gsnap/%.gsnap.filtered.bam ~/generic/data/rseqc/hg19_Ensembl.bed
 	~/tools/RSeQC-2.3.9/bin/RPKM_saturation.py -i $< -r ~/generic/data/rseqc/hg19_Ensembl.bed -o rseqc/$*
 	
 htseq/coverage-saturation-curve.pdf: $(foreach S, $(SAMPLES), htseq/$S.subsamples.count) ~/generic/scripts/plot_saturation_curve.R
 	Rscript ~/generic/scripts/plot_saturation_curve.R --input-dir htseq --min-reads 3 --y-max 30000 --output $@.part
 	mv $@.part $@ 
 
-htseq/%.subsamples.count: gsnap/%.gsnap.bam ~/chrisi/data/ensembl/Homo_sapiens.GRCh37.75.etv6runx1.no-rRNA.gtf.gz htseq/%.count
-	~/tools/samtools-0.1.19/samtools view -s 22.1 $< | ~/tools/HTSeq-0.6.1/scripts/htseq-count -f sam -t exon -s no - ~/chrisi/data/ensembl/Homo_sapiens.GRCh37.75.etv6runx1.no-rRNA.gtf.gz > $@.part ; \
+htseq/%.subsamples.count: gsnap/%.gsnap.filtered.bam ~/chrisi/data/ensembl/Homo_sapiens.GRCh37.75.etv6runx1.no-rRNA.gtf.gz htseq/%.count
+	~/tools/samtools-0.1.19/samtools view -s 22.1 -F 772 $< | ~/tools/HTSeq-0.6.1/scripts/htseq-count -f sam -t exon -s no - ~/chrisi/data/ensembl/Homo_sapiens.GRCh37.75.etv6runx1.no-rRNA.gtf.gz > $@.part ; \
 	for FRACT in 2 3 4 5 6 7 8 9 ; do \
-		~/tools/samtools-0.1.19/samtools view -s 22.$$FRACT $< | ~/tools/HTSeq-0.6.1/scripts/htseq-count -f sam -t exon -s no - ~/chrisi/data/ensembl/Homo_sapiens.GRCh37.75.etv6runx1.no-rRNA.gtf.gz > $@.part2 ; \
+		~/tools/samtools-0.1.19/samtools view -s 22.$$FRACT -F 772 $< | ~/tools/HTSeq-0.6.1/scripts/htseq-count -f sam -t exon -s no - ~/chrisi/data/ensembl/Homo_sapiens.GRCh37.75.etv6runx1.no-rRNA.gtf.gz > $@.part2 ; \
 		paste $@.part <(cut -f 2 $@.part2) > $@.part3 ; mv $@.part3 $@.part ; rm $@.part2 ; \
 	done
 	echo -e "gene\t10%\t20%\t30%\t40%\t50%\t60%\t70%\t80%\t90%\t100%" | cat - <(paste $@.part <(cut -f 2 htseq/$*.count)) > $@
