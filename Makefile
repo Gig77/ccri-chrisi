@@ -42,10 +42,11 @@ SAMPLES=18376_ACATTA_C4993ACXX_5_20140509B_20140509 \
 		18375_GCCACA_C4E7NACXX_8_20140603B_20140603 \
 		test
 
-all: gsnap htseq qc blast deseq
+all: gsnap htseq qc blast deseq fastqc
 
 include ~/generic/scripts/rna-seq/gsnap.mk
 include ~/generic/scripts/rna-seq/htseq.mk
+include ~/generic/scripts/rna-seq/fastqc.mk
 include ~/generic/scripts/rna-seq/qc.mk
 include ~/generic/scripts/rna-seq/blast.mk
 
