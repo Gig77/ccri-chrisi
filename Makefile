@@ -122,5 +122,31 @@ gsea/bla.txt: gsea/diff_exp_genes.rnk
 		-zip_report false \
 		-gui false \
 		-out gsea
+		
+#------
+# DAVID
+#------
+
+enrichment/integrated-expressed-vs-notexpressed.single-factor.deseq2.david.up.txt: integrated-expressed-vs-notexpressed.single-factor.deseq2.tsv ~/chrisi/scripts/enrichment/david.pl
+	perl ~/chrisi/scripts/enrichment/david.pl \
+		--deseq-file $< \
+		--direction up \
+		--foldchange 1 \
+		--min-padj 0.1 \
+		> $@.part
+	mv $@.part $@
 	
-	
+enrichment/integrated-expressed-vs-notexpressed.single-factor.deseq2.david.down.txt: integrated-expressed-vs-notexpressed.single-factor.deseq2.tsv ~/chrisi/scripts/enrichment/david.pl
+	perl ~/chrisi/scripts/enrichment/david.pl \
+		--deseq-file $< \
+		--direction down \
+		--foldchange 1 \
+		--min-padj 0.1 \
+		> $@.part
+	mv $@.part $@
+
+enrichment/integrated-expressed-vs-notexpressed.single-factor.deseq2.david.down.txt.heatmap.numRow.100.largeCatexcl.1e+05.pdf: enrichment/integrated-expressed-vs-notexpressed.single-factor.deseq2.david.up.txt enrichment/integrated-expressed-vs-notexpressed.single-factor.deseq2.david.down.txt ~/chrisi/scripts/enrichment/gen-david-heatmap.R
+	Rscript ~/chrisi/scripts/enrichment/gen-david-heatmap.R
+	mv enrichment/integrated-expressed-vs-notexpressed.single-factor.deseq2.david.up.txt.heatmap.numRow.100.largeCatexcl.1e+05.pdf.part enrichment/integrated-expressed-vs-notexpressed.single-factor.deseq2.david.up.txt.heatmap.numRow.100.largeCatexcl.1e+05.pdf
+	mv enrichment/integrated-expressed-vs-notexpressed.single-factor.deseq2.david.down.txt.heatmap.numRow.100.largeCatexcl.1e+05.pdf.part enrichment/integrated-expressed-vs-notexpressed.single-factor.deseq2.david.down.txt.heatmap.numRow.100.largeCatexcl.1e+05.pdf
+	 
