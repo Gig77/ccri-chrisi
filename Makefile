@@ -22,8 +22,8 @@ TRIM_BEFORE_BASE=8
 # wget -c --quiet --no-check-certificate --auth-no-challenge --user 'Christine.Portsmouth' --password 'RS5YC4LE8E' http://ngs.csf.ac.at/data/18375_GCCACA_C4E7NACXX_8_20140603B_20140603.bam &
 
 # call snps from rna-seq
-# java -jar ~/tools/varscan-2.3.6/VarScan.v2.3.6.jar mpileup2snp <(~/tools/samtools-0.1.19/samtools view -b -u -q 1 18378_CGAAGG_C4993ACXX_5_20140509B_20140509.gsnap.filtered.bam | ~/tools/samtools-0.1.19/samtools mpileup -f ~/chrisi/data/gsnap/human_g1k_v37_etv6runx1.fasta -) --min-avg-qual 20 --min-coverage 10 --min-reads2 2 --p-value 0.01 --strand-filter 0 | tee 18378.varscan.snp
-# cat 18378.varscan.snp | perl -ne 'print "$1\n" if (/:(\d+)\%/);' > 18378.varscan.snp.freq
+# java -jar ~/tools/varscan-2.3.6/VarScan.v2.3.6.jar mpileup2snp <(~/tools/samtools-0.1.19/samtools view -b -u -q 1 18378_CGAAGG_C4993ACXX_5_20140509B_20140509.gsnap.filtered.bam | ~/tools/samtools-0.1.19/samtools mpileup -f ~/chrisi/data/gsnap/human_g1k_v37_etv6runx1.fasta -) --min-avg-qual 20 --min-coverage 10 --min-reads2 2 --p-value 1 --strand-filter 0 --min-var-freq 0.01 | tee 18378.varscan.snp
+# cat 18378.varscan.snp | perl -ne 'print "$1\t$2\n" if (/:(\d+):\d:\d:(\d+)\%/);' > 18378.varscan.snp.freq
 
 # check for hygromycine
 #java -jar ~/tools/picard-tools-1.114/SamToFastq.jar VALIDATION_STRINGENCY=SILENT INPUT=<(~/tools/samtools-0.1.19/samtools view -f 4 gsnap/18372_AATGAA_C4E7NACXX_8_20140603B_20140603.gsnap.bam) FASTQ=18372.unmapped.fastq
