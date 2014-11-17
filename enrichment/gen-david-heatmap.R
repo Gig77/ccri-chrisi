@@ -14,7 +14,8 @@ carps <- clusterFctCatDAVID.v3(
 		Plot="NO",
 		carps=NULL,
 		pdftif="pdf",
-		cut.col.scheme=0.4)
+		cut.col.scheme=0.4,
+		col.overRide="highsign")
 
 clusterFctCatDAVID.v3(
 		Files=c("/home/STANNANET/christian.frech/chrisi/results/enrichment/integrated-expressed-vs-notexpressed.single-factor.deseq2.david.up.txt",
@@ -28,4 +29,5 @@ clusterFctCatDAVID.v3(
 		Plot="YES",
 		carps=carps,
 		pdftif="pdf",
-		cut.col.scheme=0.4)
+		cut.col.scheme=0.4,
+		col.overRide="highsign")

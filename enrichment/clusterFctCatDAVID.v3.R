@@ -8,6 +8,11 @@ clusterFctCatDAVID.v3 <- function(Files, whichcols, whichPcols, PvalornumRow, Pv
            
           FName <- Files[j]; print(FName)
           tab <- read.table(file=Files[j], header=T, stringsAsFactors=F, fill=T, sep="\t", quote = "\""); tab[1:5,1:5]
+		  tab$Category <- gsub("GOTERM_BP_FAT", "GO", tab$Category)
+		  tab$Category <- gsub("GOTERM_MF_FAT", "GO", tab$Category)
+		  tab$Category <- gsub("GOTERM_CC_FAT", "GO", tab$Category)
+		  tab$Term <- gsub("GO:", "", tab$Term)
+		  tab$Term <- paste(tolower(tab$Category), tab$Term, sep=":")
           howMany <- min(howmany,dim(tab)[[1]])
 
 

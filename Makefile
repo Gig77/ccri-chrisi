@@ -62,7 +62,7 @@ include ~/generic/scripts/rna-seq/blast.mk
 
 
 .PHONY: deseq
-deseq: deseq/strobl-dox-empty-vs-etv6.deseq2.chipseq-annotated.tsv deseq/zuber-etv6-nodox-vs-dox.deseq2.chipseq-annotated.tsv deseq/zuber-dox-empty-vs-etv6.deseq2.chipseq-annotated.tsv deseq/zuber+strobl-expressed-vs-notexpressed.deseq2.chipseq-annotated.tsv
+deseq: deseq/strobl-dox-empty-vs-etv6.deseq2.chipseq-annotated.tsv deseq/zuber-etv6-nodox-vs-dox.deseq2.chipseq-annotated.tsv deseq/zuber-dox-empty-vs-etv6.deseq2.chipseq-annotated.tsv deseq/zuber+strobl-expressed-vs-notexpressed.deseq2.chipseq-annotated.fuka-ross-boer.tsv
 
 deseq/strobl-dox-empty-vs-etv6.deseq2.tsv: ~/generic/scripts/rna-seq/diff-exp.R htseq/18378_CGAAGG_C4993ACXX_5_20140509B_20140509.count htseq/18379_AAGACA_C4993ACXX_5_20140509B_20140509.count htseq/18380_TAATCG_C4993ACXX_5_20140509B_20140509.count htseq/18381_CGCAAC_C4993ACXX_5_20140509B_20140509.count
 	Rscript ~/generic/scripts/rna-seq/diff-exp.R \
@@ -102,51 +102,10 @@ deseq/zuber+strobl-expressed-vs-notexpressed.deseq2.tsv: ~/generic/scripts/rna-s
 		--output-tsv $@.part
 	mv $@.part $@
 
+deseq/zuber+strobl-expressed-vs-notexpressed.deseq2.chipseq-annotated.fuka-ross-boer.tsv: deseq/zuber+strobl-expressed-vs-notexpressed.deseq2.chipseq-annotated.tsv
+	Rscript ~/chrisi/scripts/annotate-fuka-ross-boer.R
+	
 deseq/%.chipseq-annotated.tsv: deseq/%.tsv ~/chrisi/scripts/annotate-runx1-chipseq-targets.R
 	Rscript ~/chrisi/scripts/annotate-runx1-chipseq-targets.R --input $< --output $@.part
 	mv $@.part $@
-
-gsea/diff_exp_genes.rnk: deseq/zuber+strobl-expressed-vs-notexpressed.deseq2.tsv ~/chrisi/scripts/get-gsea-rnk-file.R
-	Rscript ~/chrisi/scripts/get-gsea-rnk-file.R
-	
-gsea/bla.txt: gsea/diff_exp_genes.rnk
-	java -cp ~/tools/gsea-2.0.13/gsea2-2.0.13.jar -Xmx3048m xtools.gsea.GseaPreranked \
-		-rpt_label etv6runx1 \
-		-rnk gsea/diff_exp_genes.rnk \
-		-gmx gseaftp.broadinstitute.org://pub/gsea/gene_sets/c1.all.v4.0.symbols.gmt,gseaftp.broadinstitute.org://pub/gsea/gene_sets/c2.all.v4.0.symbols.gmt,gseaftp.broadinstitute.org://pub/gsea/gene_sets/c3.all.v4.0.symbols.gmt,gseaftp.broadinstitute.org://pub/gsea/gene_sets/c4.all.v4.0.symbols.gmt,gseaftp.broadinstitute.org://pub/gsea/gene_sets/c5.all.v4.0.symbols.gmt,gseaftp.broadinstitute.org://pub/gsea/gene_sets/c6.all.v4.0.symbols.gmt,gseaftp.broadinstitute.org://pub/gsea/gene_sets/c7.all.v4.0.symbols.gmt \
-		-collapse false -mode Max_probe -norm meandiv -nperm 100 -scoring_scheme weighted -rpt_label my_analysis -include_only_symbols true -make_sets true \
-		-rnd_seed 149 \
-		-plot_top_x 300 \
-		-set_max 500 \
-		-set_min 15 \
-		-zip_report false \
-		-gui false \
-		-out gsea
 		
-#------
-# DAVID
-#------
-
-enrichment/integrated-expressed-vs-notexpressed.single-factor.deseq2.david.up.txt: integrated-expressed-vs-notexpressed.single-factor.deseq2.tsv ~/chrisi/scripts/enrichment/david.pl
-	perl ~/chrisi/scripts/enrichment/david.pl \
-		--deseq-file $< \
-		--direction up \
-		--foldchange 1 \
-		--min-padj 0.1 \
-		> $@.part
-	mv $@.part $@
-	
-enrichment/integrated-expressed-vs-notexpressed.single-factor.deseq2.david.down.txt: integrated-expressed-vs-notexpressed.single-factor.deseq2.tsv ~/chrisi/scripts/enrichment/david.pl
-	perl ~/chrisi/scripts/enrichment/david.pl \
-		--deseq-file $< \
-		--direction down \
-		--foldchange 1 \
-		--min-padj 0.1 \
-		> $@.part
-	mv $@.part $@
-
-enrichment/integrated-expressed-vs-notexpressed.single-factor.deseq2.david.down.txt.heatmap.numRow.100.largeCatexcl.1e+05.pdf: enrichment/integrated-expressed-vs-notexpressed.single-factor.deseq2.david.up.txt enrichment/integrated-expressed-vs-notexpressed.single-factor.deseq2.david.down.txt ~/chrisi/scripts/enrichment/gen-david-heatmap.R
-	Rscript ~/chrisi/scripts/enrichment/gen-david-heatmap.R
-	mv enrichment/integrated-expressed-vs-notexpressed.single-factor.deseq2.david.up.txt.heatmap.numRow.100.largeCatexcl.1e+05.pdf.part enrichment/integrated-expressed-vs-notexpressed.single-factor.deseq2.david.up.txt.heatmap.numRow.100.largeCatexcl.1e+05.pdf
-	mv enrichment/integrated-expressed-vs-notexpressed.single-factor.deseq2.david.down.txt.heatmap.numRow.100.largeCatexcl.1e+05.pdf.part enrichment/integrated-expressed-vs-notexpressed.single-factor.deseq2.david.down.txt.heatmap.numRow.100.largeCatexcl.1e+05.pdf
-	 
