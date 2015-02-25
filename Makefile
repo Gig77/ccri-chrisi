@@ -31,13 +31,6 @@ TRIM_BEFORE_BASE=8
 #~/tools/bwa-0.7.9/bwa samse hygromycine.fa 18372.unmapped.sai 18372.unmapped.fastq > 18372.unmapped.sam
 #~/tools/samtools-0.1.19/samtools view -SF 772 18372.unmapped.sam
 
-# PRADA web site: http://bioinformatics.mdanderson.org/main/PRADA:Overview
-
-# download PRADA reference (6 Gb)
-#~/chrisi/data/prada/PRADA-reference.hg19.20130828.tar.gz: 
-#	curl bioinformatics.mdanderson.org/Software/PRADA/PRADA-reference.hg19.20130828.tar.gz -o $@.part
-#	mv $@.part $@
-
 SAMPLES=18376_ACATTA_C4993ACXX_5_20140509B_20140509 \
 		18378_CGAAGG_C4993ACXX_5_20140509B_20140509 \
 		18380_TAATCG_C4993ACXX_5_20140509B_20140509 \
