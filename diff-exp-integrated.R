@@ -38,8 +38,8 @@ res.df$id <- rownames(res.df)
 
 # annotate genes with Ensembl biomart
 #---
-mart <- useMart(biomart="ensembl", dataset="hsapiens_gene_ensembl") # GRCh37, v75
-genes <- getGene(res.df$id, "ensembl_gene_id", mart)
+mart <- useMart(biomart="ENSEMBL_MART_ENSEMBL", host="grch37.ensembl.org", path="/biomart/martservice" ,dataset="hsapiens_gene_ensembl") # GRCh37, v75
+genes <- getBM(attributes=c("ensembl_gene_id", "hgnc_symbol", "description", "chromosome_name", "band", "strand", "start_position", "end_position"), mart=mart)
 res.annotated <- merge(res.df, genes[,1:3], by.x="id", by.y="ensembl_gene_id", all.x=T) # add gene annotation
 res.annotated <- res.annotated[,c(1,8,9,2,3,4,5,6,7)] # reorder columns
 res.annotated <- merge(res.annotated, counts.norm, by.x="id", by.y="row.names", all.x=T)  # add normalized read counts to output
@@ -63,8 +63,8 @@ res.df$id <- rownames(res.df)
 
 # annotate genes with Ensembl biomart
 #---
-mart <- useMart(biomart="ensembl", dataset="hsapiens_gene_ensembl") # GRCh37, v75
-genes <- getGene(res.df$id, "ensembl_gene_id", mart)
+mart <- useMart(biomart="ENSEMBL_MART_ENSEMBL", host="grch37.ensembl.org", path="/biomart/martservice" ,dataset="hsapiens_gene_ensembl") # GRCh37, v75
+genes <- getBM(attributes=c("ensembl_gene_id", "hgnc_symbol", "description", "chromosome_name", "band", "strand", "start_position", "end_position"), mart=mart)
 res.annotated <- merge(res.df, genes[,1:3], by.x="id", by.y="ensembl_gene_id", all.x=T) # add gene annotation
 res.annotated <- res.annotated[,c(1,8,9,2,3,4,5,6,7)] # reorder columns
 res.annotated <- merge(res.annotated, counts.norm, by.x="id", by.y="row.names", all.x=T)  # add normalized read counts to output

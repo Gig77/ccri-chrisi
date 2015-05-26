@@ -1,10 +1,10 @@
 options(error=recover)
-source("~/chrisi/scripts/enrichment/pGSEAfunctions.R")
-source("~/chrisi/scripts/enrichment/clusterFctCatDAVID.v3.R")
+source("/mnt/projects/chrisi/scripts/enrichment/pGSEAfunctions.R")
+source("/mnt/projects/chrisi/scripts/enrichment/clusterFctCatDAVID.v3.R")
 
 carps <- clusterFctCatDAVID.v3(
-		Files=c("/home/STANNANET/christian.frech/chrisi/results/enrichment/integrated-expressed-vs-notexpressed.single-factor.deseq2.david.up.txt",
-				"/home/STANNANET/christian.frech/chrisi/results/enrichment/integrated-expressed-vs-notexpressed.single-factor.deseq2.david.down.txt"),
+		Files=c("/mnt/projects/chrisi/results/enrichment/integrated-expressed-vs-notexpressed.single-factor.deseq2.david.up.txt",
+				"/mnt/projects/chrisi/results/enrichment/integrated-expressed-vs-notexpressed.single-factor.deseq2.david.down.txt"),
 		whichcols=c(12),
 		whichPcols=c(12),
 		PvalornumRow="numRow",
@@ -18,8 +18,8 @@ carps <- clusterFctCatDAVID.v3(
 		col.overRide="highsign")
 
 clusterFctCatDAVID.v3(
-		Files=c("/home/STANNANET/christian.frech/chrisi/results/enrichment/integrated-expressed-vs-notexpressed.single-factor.deseq2.david.up.txt",
-				"/home/STANNANET/christian.frech/chrisi/results/enrichment/integrated-expressed-vs-notexpressed.single-factor.deseq2.david.down.txt"),
+		Files=c("/mnt/projects/chrisi/results/enrichment/integrated-expressed-vs-notexpressed.single-factor.deseq2.david.up.txt",
+				"/mnt/projects/chrisi/results/enrichment/integrated-expressed-vs-notexpressed.single-factor.deseq2.david.down.txt"),
 		whichcols=c(12),
 		whichPcols=c(12),
 		PvalornumRow="numRow",

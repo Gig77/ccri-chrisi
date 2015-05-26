@@ -1,7 +1,7 @@
 options(warn=1)
 
 #args <- commandArgs(trailingOnly = TRUE)
-args <- args <- c("~/chrisi/results/htseq/test.count", "~/chrisi/results/htseq/18376_ACATTA_C4993ACXX_5_20140509B_20140509.count")
+args <- args <- c("/mnt/projects/chrisi/results/htseq/test.count", "/mnt/projects/chrisi/results/htseq/18376_ACATTA_C4993ACXX_5_20140509B_20140509.count")
 
 if (is.na(args[1])) stop("ERROR: no count file specified")
 

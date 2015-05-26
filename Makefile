@@ -3,7 +3,7 @@ SHELL=/bin/bash  # required to make pipefail work
 .SECONDARY:      # do not delete any intermediate files
 LOG = perl -ne 'use POSIX qw(strftime); $$|=1; print strftime("%F %02H:%02M:%S ", localtime), $$ARGV[0], "$@: $$_";'
 
-PROJECT_HOME=~/chrisi
+PROJECT_HOME=/mnt/projects/chrisi
 TRIM_BEFORE_BASE=8
 
 # download BAM files from IMP
@@ -22,7 +22,7 @@ TRIM_BEFORE_BASE=8
 # wget -c --quiet --no-check-certificate --auth-no-challenge --user 'Christine.Portsmouth' --password 'RS5YC4LE8E' http://ngs.csf.ac.at/data/18375_GCCACA_C4E7NACXX_8_20140603B_20140603.bam &
 
 # call snps from rna-seq
-# java -jar ~/tools/varscan-2.3.6/VarScan.v2.3.6.jar mpileup2snp <(~/tools/samtools-0.1.19/samtools view -b -u -q 1 18378_CGAAGG_C4993ACXX_5_20140509B_20140509.gsnap.filtered.bam | ~/tools/samtools-0.1.19/samtools mpileup -f ~/chrisi/data/gsnap/human_g1k_v37_etv6runx1.fasta -) --min-avg-qual 20 --min-coverage 10 --min-reads2 2 --p-value 1 --strand-filter 0 --min-var-freq 0.01 | tee 18378.varscan.snp
+# java -jar ~/tools/varscan-2.3.6/VarScan.v2.3.6.jar mpileup2snp <(~/tools/samtools-0.1.19/samtools view -b -u -q 1 18378_CGAAGG_C4993ACXX_5_20140509B_20140509.gsnap.filtered.bam | ~/tools/samtools-0.1.19/samtools mpileup -f /mnt/projects/chrisi/data/gsnap/human_g1k_v37_etv6runx1.fasta -) --min-avg-qual 20 --min-coverage 10 --min-reads2 2 --p-value 1 --strand-filter 0 --min-var-freq 0.01 | tee 18378.varscan.snp
 # cat 18378.varscan.snp | perl -ne 'print "$1\t$2\n" if (/:(\d+):\d:\d:(\d+)\%/);' > 18378.varscan.snp.freq
 
 # check for hygromycine
@@ -47,58 +47,58 @@ SAMPLES=18376_ACATTA_C4993ACXX_5_20140509B_20140509 \
 
 all: gsnap htseq qc blast deseq fastqc
 
-include ~/generic/scripts/rna-seq/gsnap.mk
-include ~/generic/scripts/rna-seq/htseq.mk
-include ~/generic/scripts/rna-seq/fastqc.mk
-include ~/generic/scripts/rna-seq/qc.mk
-include ~/generic/scripts/rna-seq/blast.mk
+include /mnt/projects/generic/scripts/rna-seq/gsnap.mk
+include /mnt/projects/generic/scripts/rna-seq/htseq.mk
+include /mnt/projects/generic/scripts/rna-seq/fastqc.mk
+include /mnt/projects/generic/scripts/rna-seq/qc.mk
+include /mnt/projects/generic/scripts/rna-seq/blast.mk
 
 
 .PHONY: deseq
 deseq: deseq/strobl-dox-empty-vs-etv6.deseq2.chipseq-annotated.tsv deseq/zuber-etv6-nodox-vs-dox.deseq2.chipseq-annotated.tsv deseq/zuber-dox-empty-vs-etv6.deseq2.chipseq-annotated.tsv deseq/zuber+strobl-expressed-vs-notexpressed.deseq2.chipseq-annotated.fuka-ross-boer.tsv
 
-deseq/strobl-dox-empty-vs-etv6.deseq2.tsv: ~/generic/scripts/rna-seq/diff-exp.R htseq/18378_CGAAGG_C4993ACXX_5_20140509B_20140509.count htseq/18379_AAGACA_C4993ACXX_5_20140509B_20140509.count htseq/18380_TAATCG_C4993ACXX_5_20140509B_20140509.count htseq/18381_CGCAAC_C4993ACXX_5_20140509B_20140509.count
-	Rscript ~/generic/scripts/rna-seq/diff-exp.R \
+deseq/strobl-dox-empty-vs-etv6.deseq2.tsv: /mnt/projects/generic/scripts/rna-seq/diff-exp.R htseq/18378_CGAAGG_C4993ACXX_5_20140509B_20140509.count htseq/18379_AAGACA_C4993ACXX_5_20140509B_20140509.count htseq/18380_TAATCG_C4993ACXX_5_20140509B_20140509.count htseq/18381_CGCAAC_C4993ACXX_5_20140509B_20140509.count
+	Rscript /mnt/projects/generic/scripts/rna-seq/diff-exp.R \
 		--control 18378:18378_CGAAGG_C4993ACXX_5_20140509B_20140509.count,18379:18379_AAGACA_C4993ACXX_5_20140509B_20140509.count \
 		--experiment 18380:18380_TAATCG_C4993ACXX_5_20140509B_20140509.count,18381:18381_CGCAAC_C4993ACXX_5_20140509B_20140509.count \
 		--output-tsv $@.part \
 		--output-xls $(firstword $(subst .tsv, ,$@)).xlsx
 	mv $@.part $@
 	
-deseq/zuber-etv6-nodox-vs-dox.deseq2.tsv: ~/generic/scripts/rna-seq/diff-exp.R htseq/18370_AATAGC_C4E7NACXX_8_20140603B_20140603.count htseq/18372_AATGAA_C4E7NACXX_8_20140603B_20140603.count htseq/18371_TTAACT_C4E7NACXX_8_20140603B_20140603.count htseq/18373_GATTGT_C4E7NACXX_8_20140603B_20140603.count
-	Rscript ~/generic/scripts/rna-seq/diff-exp.R \
+deseq/zuber-etv6-nodox-vs-dox.deseq2.tsv: /mnt/projects/generic/scripts/rna-seq/diff-exp.R htseq/18370_AATAGC_C4E7NACXX_8_20140603B_20140603.count htseq/18372_AATGAA_C4E7NACXX_8_20140603B_20140603.count htseq/18371_TTAACT_C4E7NACXX_8_20140603B_20140603.count htseq/18373_GATTGT_C4E7NACXX_8_20140603B_20140603.count
+	Rscript /mnt/projects/generic/scripts/rna-seq/diff-exp.R \
 		--control 18370:18370_AATAGC_C4E7NACXX_8_20140603B_20140603.count,18372:18372_AATGAA_C4E7NACXX_8_20140603B_20140603.count \
 		--experiment 18371:18371_TTAACT_C4E7NACXX_8_20140603B_20140603.count,18373:18373_GATTGT_C4E7NACXX_8_20140603B_20140603.count \
 		--output-tsv $@.part \
 		--output-xls $(firstword $(subst .tsv, ,$@)).xlsx
 	mv $@.part $@
 
-deseq/zuber-dox-empty-vs-etv6.deseq2.tsv: ~/generic/scripts/rna-seq/diff-exp.R htseq/18375_GCCACA_C4E7NACXX_8_20140603B_20140603.count htseq/18377_GGTGAG_C4993ACXX_5_20140509B_20140509.count htseq/18371_TTAACT_C4E7NACXX_8_20140603B_20140603.count htseq/18373_GATTGT_C4E7NACXX_8_20140603B_20140603.count 
-	Rscript ~/generic/scripts/rna-seq/diff-exp.R \
+deseq/zuber-dox-empty-vs-etv6.deseq2.tsv: /mnt/projects/generic/scripts/rna-seq/diff-exp.R htseq/18375_GCCACA_C4E7NACXX_8_20140603B_20140603.count htseq/18377_GGTGAG_C4993ACXX_5_20140509B_20140509.count htseq/18371_TTAACT_C4E7NACXX_8_20140603B_20140603.count htseq/18373_GATTGT_C4E7NACXX_8_20140603B_20140603.count 
+	Rscript /mnt/projects/generic/scripts/rna-seq/diff-exp.R \
 		--control 18375:18375_GCCACA_C4E7NACXX_8_20140603B_20140603.count,18377:18377_GGTGAG_C4993ACXX_5_20140509B_20140509.count \
 		--experiment 18371:18371_TTAACT_C4E7NACXX_8_20140603B_20140603.count,18373:18373_GATTGT_C4E7NACXX_8_20140603B_20140603.count \
 		--output-tsv $@.part \
 		--output-xls $(firstword $(subst .tsv, ,$@)).xlsx
 	mv $@.part $@
 
-deseq/zuber-nodox-empty-vs-etv6.deseq2.tsv: ~/generic/scripts/rna-seq/diff-exp.R htseq/18374_ATAAGA_C4E7NACXX_8_20140603B_20140603.count htseq/18376_ACATTA_C4993ACXX_5_20140509B_20140509.count htseq/18370_AATAGC_C4E7NACXX_8_20140603B_20140603.count htseq/18372_AATGAA_C4E7NACXX_8_20140603B_20140603.count
-	Rscript ~/generic/scripts/rna-seq/diff-exp.R \
+deseq/zuber-nodox-empty-vs-etv6.deseq2.tsv: /mnt/projects/generic/scripts/rna-seq/diff-exp.R htseq/18374_ATAAGA_C4E7NACXX_8_20140603B_20140603.count htseq/18376_ACATTA_C4993ACXX_5_20140509B_20140509.count htseq/18370_AATAGC_C4E7NACXX_8_20140603B_20140603.count htseq/18372_AATGAA_C4E7NACXX_8_20140603B_20140603.count
+	Rscript /mnt/projects/generic/scripts/rna-seq/diff-exp.R \
 		--control 18374:18374_ATAAGA_C4E7NACXX_8_20140603B_20140603.count,18376:18376_ACATTA_C4993ACXX_5_20140509B_20140509.count \
 		--experiment 18370:18370_AATAGC_C4E7NACXX_8_20140603B_20140603.count,18372:18372_AATGAA_C4E7NACXX_8_20140603B_20140603.count \
 		--output-tsv $@.part
 	mv $@.part $@
 
-deseq/zuber+strobl-expressed-vs-notexpressed.deseq2.tsv: ~/generic/scripts/rna-seq/diff-exp.R $(foreach S, $(SAMPLES), htseq/$S.count)
-	Rscript ~/generic/scripts/rna-seq/diff-exp.R \
+deseq/zuber+strobl-expressed-vs-notexpressed.deseq2.tsv: /mnt/projects/generic/scripts/rna-seq/diff-exp.R $(foreach S, $(SAMPLES), htseq/$S.count)
+	Rscript /mnt/projects/generic/scripts/rna-seq/diff-exp.R \
 		--control 18370:18370_AATAGC_C4E7NACXX_8_20140603B_20140603.count,18372:18372_AATGAA_C4E7NACXX_8_20140603B_20140603.count,18374:18374_ATAAGA_C4E7NACXX_8_20140603B_20140603.count,18375:18375_GCCACA_C4E7NACXX_8_20140603B_20140603.count,18376:18376_ACATTA_C4993ACXX_5_20140509B_20140509.count,18377:18377_GGTGAG_C4993ACXX_5_20140509B_20140509.count,18378:18378_CGAAGG_C4993ACXX_5_20140509B_20140509.count,18379:18379_AAGACA_C4993ACXX_5_20140509B_20140509.count \
 		--experiment 18373:18373_GATTGT_C4E7NACXX_8_20140603B_20140603.count,18371:18371_TTAACT_C4E7NACXX_8_20140603B_20140603.count,18380:18380_TAATCG_C4993ACXX_5_20140509B_20140509.count,18381:18381_CGCAAC_C4993ACXX_5_20140509B_20140509.count \
 		--output-tsv $@.part
 	mv $@.part $@
 
 deseq/zuber+strobl-expressed-vs-notexpressed.deseq2.chipseq-annotated.fuka-ross-boer.tsv: deseq/zuber+strobl-expressed-vs-notexpressed.deseq2.chipseq-annotated.tsv
-	Rscript ~/chrisi/scripts/annotate-fuka-ross-boer.R
+	Rscript /mnt/projects/chrisi/scripts/annotate-fuka-ross-boer.R
 	
-deseq/%.chipseq-annotated.tsv: deseq/%.tsv ~/chrisi/scripts/annotate-runx1-chipseq-targets.R
-	Rscript ~/chrisi/scripts/annotate-runx1-chipseq-targets.R --input $< --output $@.part
+deseq/%.chipseq-annotated.tsv: deseq/%.tsv /mnt/projects/chrisi/scripts/annotate-runx1-chipseq-targets.R
+	Rscript /mnt/projects/chrisi/scripts/annotate-runx1-chipseq-targets.R --input $< --output $@.part
 	mv $@.part $@
 		

@@ -45,10 +45,10 @@ res.df$id <- rownames(res.df)
 
 genes <- getGene(res.df$id, "ensembl_gene_id", mart)
 res.annotated <- merge(res.df, genes[,1:3], by.x="id", by.y="ensembl_gene_id", all.x=T)
-write.table(res.annotated, file="~/chrisi/results/strobl-dox-empty-vs-etv6.deseq2.tsv", col.names=T, row.names=F, sep="\t", quote=F)
+write.table(res.annotated, file="/mnt/projects/chrisi/results/strobl-dox-empty-vs-etv6.deseq2.tsv", col.names=T, row.names=F, sep="\t", quote=F)
 
 # ZUBER ETV6 DOX vs. NODOX ------------------
-cds <- DESeqDataSetFromHTSeqCount(sampleTable = samples.zuber.etv6.doxVsNodox, directory="~/chrisi/results/htseq", design=~treatment)
+cds <- DESeqDataSetFromHTSeqCount(sampleTable = samples.zuber.etv6.doxVsNodox, directory="/mnt/projects/chrisi/results/htseq", design=~treatment)
 dds <- DESeq(cds)
 colData(dds)
 dds$treatment <- relevel(dds$treatment, "nodox")
@@ -59,10 +59,10 @@ res.df$id <- rownames(res.df)
 
 genes <- getGene(res.df$id, "ensembl_gene_id", mart)
 res.annotated <- merge(res.df, genes[,1:3], by.x="id", by.y="ensembl_gene_id", all.x=T)
-write.table(res.annotated, file="~/chrisi/results/zuber-etv6-dox-vs-nodox.deseq2.tsv", col.names=T, row.names=F, sep="\t", quote=F)
+write.table(res.annotated, file="/mnt/projects/chrisi/results/zuber-etv6-dox-vs-nodox.deseq2.tsv", col.names=T, row.names=F, sep="\t", quote=F)
 
 # ZUBER DOX ETV6 vs. EMPTY vector ------------------
-cds <- DESeqDataSetFromHTSeqCount(sampleTable = samples.zuber.dox.etv6VsEmpty, directory="~/chrisi/results/htseq", design=~vector)
+cds <- DESeqDataSetFromHTSeqCount(sampleTable = samples.zuber.dox.etv6VsEmpty, directory="/mnt/projects/chrisi/results/htseq", design=~vector)
 dds <- DESeq(cds)
 colData(dds)
 dds$vector <- relevel(dds$vector, "empty")
@@ -73,7 +73,7 @@ res.df$id <- rownames(res.df)
 
 genes <- getGene(res.df$id, "ensembl_gene_id", mart)
 res.annotated <- merge(res.df, genes[,1:3], by.x="id", by.y="ensembl_gene_id", all.x=T)
-write.table(res.annotated, file="~/chrisi/results/zuber-dox-empty-vs-etv6.deseq2.tsv", col.names=T, row.names=F, sep="\t", quote=F)
+write.table(res.annotated, file="/mnt/projects/chrisi/results/zuber-dox-empty-vs-etv6.deseq2.tsv", col.names=T, row.names=F, sep="\t", quote=F)
 
 #--------
 # DESeq --- OBSOLETE

@@ -28,8 +28,8 @@ wiRunx1 <- unique(wi$Runx1); wiRunx1 <- wiRunx1[ -which(wiRunx1 == "") ]
 
 ## get orthologs
 library(biomaRt)
-human = useMart("ensembl", dataset = "hsapiens_gene_ensembl")
-mouse = useMart("ensembl", dataset = "mmusculus_gene_ensembl")
+human = useMart(biomart="ENSEMBL_MART_ENSEMBL", host="grch37.ensembl.org", path="/biomart/martservice" ,dataset="hsapiens_gene_ensembl") # GRCh37, v75
+mouse = useMart(biomart="ENSEMBL_MART_ENSEMBL", host="feb2014.archive.ensembl.org", dataset="mmusculus_gene_ensembl") # GRCm38, v75
 humOrt <- getLDS(attributes = c("mgi_symbol"),
        filters = "mgi_symbol", values=wiRunx1, mart = mouse,
        attributesL = c("hgnc_symbol", "entrezgene"), martL = human )
@@ -69,8 +69,8 @@ mausIDs <- unique(ni$nearest.gene); tName <- "allNiebuhr"
 
 ## get orthologs
 library(biomaRt)
-human = useMart("ensembl", dataset = "hsapiens_gene_ensembl")
-mouse = useMart("ensembl", dataset = "mmusculus_gene_ensembl")
+human = useMart(biomart="ENSEMBL_MART_ENSEMBL", host="grch37.ensembl.org", path="/biomart/martservice" ,dataset="hsapiens_gene_ensembl") # GRCh37, v75
+mouse = useMart(biomart="ENSEMBL_MART_ENSEMBL", host="feb2014.archive.ensembl.org", dataset="mmusculus_gene_ensembl") # GRCm38, v75
 humOrt <- getLDS(attributes = c("mgi_symbol"),
        filters = "mgi_symbol", values=mausIDs, mart = mouse,
        attributesL = c("hgnc_symbol", "entrezgene"), martL = human)
@@ -118,34 +118,34 @@ merged <- merged[order(merged$padj), ]
 write.table(merged, file=opt$output, col.names=T, row.names=F, sep="\t", quote=F)
 
 ## ChIpseq an matAnn dranhaengen - strobl ####################
-#chrisi <- read.delim(file="~/chrisi/results/strobl-dox-empty-vs-etv6.deseq2.tsv", na.strings=c("NA", ""))
+#chrisi <- read.delim(file="/mnt/projects/chrisi/results/strobl-dox-empty-vs-etv6.deseq2.tsv", na.strings=c("NA", ""))
 #chrisi$hgnc_symbol[chrisi$hgnc_symbol==""] <- NA
 #merged <- merge(chrisi, ni1Line, by.x="hgnc_symbol", by.y="menschSym", all.x=T, all.y=F); head(merged); dim(merged)
 #merged <- merge(merged, tj[,c(3,3)], by.x="hgnc_symbol", by.y="Tijssen_Runx1_alone", all.x=T, all.y=F); head(merged); dim(merged)
 #merged <- merge(merged, wihumOrt.dedup, by.x="hgnc_symbol", by.y="Wi_hgnc", all.x=T, all.y=F); head(merged); dim(merged)
 
 #merged <- merged[order(merged$padj), ]
-#write.table(merged, file="~/chrisi/results/strobl-dox-empty-vs-etv6.deseq2.chipseq-annotated.tsv", col.names=T, row.names=F, sep="\t", quote=F)
+#write.table(merged, file="/mnt/projects/chrisi/results/strobl-dox-empty-vs-etv6.deseq2.chipseq-annotated.tsv", col.names=T, row.names=F, sep="\t", quote=F)
 #############################################################
 
 ## ChIpseq an matAnn dranhaengen - zuber ####################
-#chrisi <- read.delim(file="~/chrisi/results/zuber-etv6-dox-vs-nodox.deseq2.tsv", na.strings=c("NA", ""))
+#chrisi <- read.delim(file="/mnt/projects/chrisi/results/zuber-etv6-dox-vs-nodox.deseq2.tsv", na.strings=c("NA", ""))
 #chrisi$hgnc_symbol[chrisi$hgnc_symbol==""] <- NA
 #merged <- merge(chrisi, ni1Line, by.x="hgnc_symbol", by.y="menschSym", all.x=T, all.y=F); head(merged); dim(merged)
 #merged <- merge(merged, tj[,c(3,3)], by.x="hgnc_symbol", by.y="Tijssen_Runx1_alone", all.x=T, all.y=F); head(merged); dim(merged)
 #merged <- merge(merged, wihumOrt.dedup, by.x="hgnc_symbol", by.y="Wi_hgnc", all.x=T, all.y=F); head(merged); dim(merged)
 
 #merged <- merged[order(merged$padj), ]
-#write.table(merged, file="~/chrisi/results/zuber-etv6-dox-vs-nodox.deseq2.chipseq-annotated.tsv", col.names=T, row.names=F, sep="\t", quote=F)
+#write.table(merged, file="/mnt/projects/chrisi/results/zuber-etv6-dox-vs-nodox.deseq2.chipseq-annotated.tsv", col.names=T, row.names=F, sep="\t", quote=F)
 #############################################################
 
 ## ChIpseq an matAnn dranhaengen - zuber ####################
-#chrisi <- read.delim(file="~/chrisi/results/zuber-dox-empty-vs-etv6.deseq2.tsv", na.strings=c("NA", ""))
+#chrisi <- read.delim(file="/mnt/projects/chrisi/results/zuber-dox-empty-vs-etv6.deseq2.tsv", na.strings=c("NA", ""))
 #chrisi$hgnc_symbol[chrisi$hgnc_symbol==""] <- NA
 #merged <- merge(chrisi, ni1Line, by.x="hgnc_symbol", by.y="menschSym", all.x=T, all.y=F); head(merged); dim(merged)
 #merged <- merge(merged, tj[,c(3,3)], by.x="hgnc_symbol", by.y="Tijssen_Runx1_alone", all.x=T, all.y=F); head(merged); dim(merged)
 #merged <- merge(merged, wihumOrt.dedup, by.x="hgnc_symbol", by.y="Wi_hgnc", all.x=T, all.y=F); head(merged); dim(merged)
 
 #merged <- merged[order(merged$padj), ]
-#write.table(merged, file="~/chrisi/results/zuber-dox-empty-vs-etv6.deseq2.chipseq-annotated.tsv", col.names=T, row.names=F, sep="\t", quote=F)
+#write.table(merged, file="/mnt/projects/chrisi/results/zuber-dox-empty-vs-etv6.deseq2.chipseq-annotated.tsv", col.names=T, row.names=F, sep="\t", quote=F)
 #############################################################

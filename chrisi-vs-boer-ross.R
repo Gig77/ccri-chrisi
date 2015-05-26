@@ -1,7 +1,7 @@
-boer <- read.delim("~/chrisi/data/RossBoer/NordischALL.esetnsF.annot.txt")
-boer.2009 <- read.delim("~/chrisi/data/RossBoer/matAnn.GSE13351_BOER.eset_zfilt_th3_nsF.tsv")
-ross <- read.delim("~/chrisi/data/RossBoer/ROSS2.2003.esetnsF.annot.txt")
-chrisi <- read.delim("~/chrisi/results/zuber-dox-empty-vs-etv6.deseq2.tsv")
+boer <- read.delim("/mnt/projects/chrisi/data/RossBoer/NordischALL.esetnsF.annot.txt")
+boer.2009 <- read.delim("/mnt/projects/chrisi/data/RossBoer/matAnn.GSE13351_BOER.eset_zfilt_th3_nsF.tsv")
+ross <- read.delim("/mnt/projects/chrisi/data/RossBoer/ROSS2.2003.esetnsF.annot.txt")
+chrisi <- read.delim("/mnt/projects/chrisi/results/zuber-dox-empty-vs-etv6.deseq2.tsv")
 
 m.ross <- merge(ross, chrisi, by.x="syms", by.y="hgnc_symbol")
 m.boer <- merge(boer, chrisi, by.x="syms", by.y="hgnc_symbol")
@@ -9,7 +9,7 @@ m.boer.2009 <- merge(boer.2009, chrisi, by.x="syms", by.y="hgnc_symbol")
 
 gene.highlights <- c("ETV6", "RUNX1", "EPOR")
 
-pdf("~/chrisi/results/chrisi-boer-scatter.pdf")
+pdf("/mnt/projects/chrisi/results/chrisi-boer-scatter.pdf")
 fit <- lm(log2FoldChange~TAvs.mean.noTall, data=m.boer)
 p <- anova(fit)$'Pr(>F)'[1]
 R <- summary(fit)$r.squared
@@ -24,7 +24,7 @@ text(m.boer$TAvs.mean.noTall[sig], m.boer$log2FoldChange[sig]-0.1, m.boer$syms[s
 text(m.boer$TAvs.mean.noTall[m.boer$syms %in% gene.highlights], m.boer$log2FoldChange[m.boer$syms %in% gene.highlights]-0.1, m.boer$syms[m.boer$syms %in% gene.highlights], cex=0.3, col="orange")
 dev.off()
 
-pdf("~/chrisi/results/chrisi-boer2009-scatter.pdf")
+pdf("/mnt/projects/chrisi/results/chrisi-boer2009-scatter.pdf")
 fit <- lm(log2FoldChange~TA_vs_rest, data=m.boer.2009)
 p <- anova(fit)$'Pr(>F)'[1]
 R <- summary(fit)$r.squared
@@ -39,7 +39,7 @@ text(m.boer.2009$TA_vs_rest[sig], m.boer.2009$log2FoldChange[sig]-0.1, m.boer.20
 text(m.boer.2009$TA_vs_rest[m.boer.2009$syms %in% gene.highlights], m.boer.2009$log2FoldChange[m.boer.2009$syms %in% gene.highlights]-0.1, m.boer.2009$syms[m.boer.2009$syms %in% gene.highlights], cex=0.3, col="orange")
 dev.off()
 
-pdf("~/chrisi/results/chrisi-ross-scatter.pdf")
+pdf("/mnt/projects/chrisi/results/chrisi-ross-scatter.pdf")
 fit <- lm(log2FoldChange~TAvs.mean_noTALL, data=m.ross)
 p <- anova(fit)$'Pr(>F)'[1]
 R <- summary(fit)$r.squared
