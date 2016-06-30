@@ -12,6 +12,7 @@ opt <- parse_args(OptionParser(option_list=option_list))
 
 #### vgl mit ChIpseq ############################################################
 ########## Tijssen-Gottwald ################################
+# http://www.ncbi.nlm.nih.gov/pubmed/21571218
 ## read komische Tabelle
 #setwd(paste(pathBal, "ChIPseqOverlap", sep="/"))
 tj <-  read.csv("chipseq/Tijssen_all.genes.txt",  stringsAsFactors=F, sep="\t", header=T, fill=T)
@@ -21,6 +22,7 @@ allRunx1 <- as.vector(unique(do.call(c, tj)))
 
 
 ########## Wilson-Gottgens #################################
+# http://www.ncbi.nlm.nih.gov/pubmed/20887958
 wi <-  read.csv("chipseq/Wilson_Gottgens_ChIPseq.txt",  stringsAsFactors=F, sep="\t", header=T, fill=T)
 #wi[1:5,]
 wiRunx1 <- unique(wi$Runx1); wiRunx1 <- wiRunx1[ -which(wiRunx1 == "") ] 
@@ -49,6 +51,7 @@ wiRunx1hu <- sort( unique(humOrt$hgnc[humOrt$hgnc != ""]) )
 
 
 ########## Niebuhr ##########################################
+# http://www.ncbi.nlm.nih.gov/pubmed/23704093
 ni <-  read.csv("chipseq/Niebuhr_TableS3_Runx1 Peaks Called in ProB-Cells.txt",  stringsAsFactors=F, sep="\t", header=T, fill=T)
 #ni[1:5,]
 #par(mfrow=c(2,2)); hist(ni$dist_tss);  hist(ni$score); plot(ni$dist_tss,ni$score, pch=20, cex=0.8); plot(ni$dist_tss,ni$score, xlim=c(-50000, 50000), pch=20, cex=0.8)
