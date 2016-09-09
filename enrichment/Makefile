@@ -11,7 +11,7 @@ gsea/diff_exp_genes.rnk: deseq/zuber+strobl-expressed-vs-notexpressed.deseq2.tsv
 	Rscript /mnt/projects/chrisi/scripts/get-gsea-rnk-file.R
 	
 gsea/all: gsea/diff_exp_genes.rnk
-	java -cp ~/tools/gsea-2.0.13/gsea2-2.0.13.jar -Xmx3048m xtools.gsea.GseaPreranked \
+	java -cp /data_synology/software/gsea-2.0.13/gsea2-2.0.13.jar -Xmx3048m xtools.gsea.GseaPreranked \
 		-rpt_label etv6runx1 \
 		-rnk gsea/diff_exp_genes.rnk \
 		-gmx gseaftp.broadinstitute.org://pub/gsea/gene_sets/c1.all.v4.0.symbols.gmt,gseaftp.broadinstitute.org://pub/gsea/gene_sets/c2.all.v4.0.symbols.gmt,gseaftp.broadinstitute.org://pub/gsea/gene_sets/c3.all.v4.0.symbols.gmt,gseaftp.broadinstitute.org://pub/gsea/gene_sets/c4.all.v4.0.symbols.gmt,gseaftp.broadinstitute.org://pub/gsea/gene_sets/c5.all.v4.0.symbols.gmt,gseaftp.broadinstitute.org://pub/gsea/gene_sets/c6.all.v4.0.symbols.gmt,gseaftp.broadinstitute.org://pub/gsea/gene_sets/c7.all.v4.0.symbols.gmt \
@@ -25,7 +25,7 @@ gsea/all: gsea/diff_exp_genes.rnk
 		-out gsea
 
 gsea/chrisi_vs_fuka2011: gsea/diff_exp_genes.rnk
-	java -cp /home/STANNANET/christian.frech/tools/gsea-2.0.13/gsea2-2.0.13.jar -Xmx3048m xtools.gsea.GseaPreranked \
+	java -cp /data_synology/software/gsea-2.0.13/gsea2-2.0.13.jar -Xmx3048m xtools.gsea.GseaPreranked \
 		-rpt_label chrisi_vs_fuka2011 \
 		-rnk /mnt/projects/chrisi/results/enrichment/gsea/diff_exp_genes.rnk \
 		-gmx /mnt/projects/chrisi/results/fuka/tableS1.gmx#fuka2011_top_200,/mnt/projects/chrisi/results/fuka/tableS1.gmx#fuka2011_down_top200,/mnt/projects/chrisi/results/fuka/tableS1.gmx#fuka2011_up_top200 \
@@ -39,7 +39,7 @@ gsea/chrisi_vs_fuka2011: gsea/diff_exp_genes.rnk
 		-gui false 
 
 gsea/hsc: gsea/diff_exp_genes.rnk
-	java -cp /home/STANNANET/christian.frech/tools/gsea-2.0.13/gsea2-2.0.13.jar -Xmx3048m xtools.gsea.GseaPreranked \
+	java -cp /data_synology/software/gsea-2.0.13/gsea2-2.0.13.jar -Xmx3048m xtools.gsea.GseaPreranked \
 		-rpt_label chrisi_vs_hsc_signatures \
 		-rnk /mnt/projects/chrisi/results/enrichment/gsea/diff_exp_genes.rnk \
 		-gmx /mnt/projects/chrisi/results/enrichment/gsea/JAATINEN_HEMATOPOIETIC_STEM_CELL_UP.gmx,/home/STANNANET/christian.frech/tel_aml_kd/data/eppert_2011/LSC_HSC_gene_sets.gmx#EPPERT2011_HSC_R,/home/STANNANET/christian.frech/tel_aml_kd/data/eppert_2011/LSC_HSC_gene_sets.gmx#EPPERT2011_LSC_R \
@@ -53,7 +53,7 @@ gsea/hsc: gsea/diff_exp_genes.rnk
 		-gui false
 		
 gsea/primTA-vs-preB: gsea/diff_exp_genes.rnk
-	java -cp /home/STANNANET/christian.frech/tools/gsea-2.0.13/gsea2-2.0.13.jar -Xmx3048m xtools.gsea.GseaPreranked \
+	java -cp /data_synology/software/gsea-2.0.13/gsea2-2.0.13.jar -Xmx3048m xtools.gsea.GseaPreranked \
 		-rpt_label telaml_ross_2003_vs_Bcells \
 		-rnk /mnt/projects/chrisi/results/enrichment/gsea/diff_exp_genes.rnk \
 		-gmx /mnt/projects/chrisi/results/enrichment/gsea/gmttab.TELAMLROSSvsBcells.gmt \

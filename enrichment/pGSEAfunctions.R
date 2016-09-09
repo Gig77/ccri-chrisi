@@ -541,9 +541,7 @@ dmatFctDavid <- function(Tab, Name) {
                wh2 <- levels(as.factor(Tab$Term))[m]
                a <- as.vector(unlist(strsplit(Tab[Tab$Term == wh1,]$Genes,","))); a <- a[which(!is.na(a))]
                b <- as.vector(unlist(strsplit(Tab[Tab$Term == wh2,]$Genes,","))); b <- b[which(!is.na(b))]
-               c <- intersect(a,b); c
-               myDist <- length(c)/(min(length(a),length(b))); myDist
-               dmat[l,m] <- myDist; #colnames(dmat)[i] <- levels(as.factor(Tab$Term))[i]
+               dmat[l,m] <- length(intersect(a,b)) / length(union(a,b))
            }
      }
      dmat[dmat == 0] <- 0.00001
